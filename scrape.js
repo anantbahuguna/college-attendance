@@ -1,6 +1,7 @@
 const request = require("request");
 const cheerio = require("cheerio");
 const express = require('express')
+const keys = require('./config/keys')
 const app = express()
 
 
@@ -13,19 +14,20 @@ const app = express()
 //   }
 // });
 
-var data = {
-    'enroll': 9917103192,
-    'dob': '15-03-1998',
-    'password': '039192NA'
-}
+// var data = {
+//     'enroll': 9917103192,
+//     'dob': '15-03-1998',
+//     'password': ''
+// }
+var data = keys.data
 var headers = {
 	'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.110 Safari/537.36',
 	'Content-Type' : 'application/x-www-form-urlencoded'
 }
 
-// app.get('/',(req,res)=>{
-//     login(data,res)
-// })
+app.get('/',(req,res)=>{
+    res.send(login(data))
+})
 function login(data){
     console.log('hello')
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url:'https://webkiosk.jiit.ac.in', headers: headers}, function(error, response, body){
@@ -51,7 +53,7 @@ function login(data){
 						// dialog.showErrorBox('Authentication Error', 'Webkiosk reports that these credentials are invalid. Please make sure not to try the 3rd time before making sure!');
 						// loginScreen.webContents.send('failure', 'NA');
                         // return;
-                        
+
                         console.log('invalid pwd')
 					}
 					if(httpResponse.rawHeaders[5].split('=')[1]){
@@ -70,7 +72,7 @@ function login(data){
 							}
 							else{
                                 console.log('logged in')
-                                getAttendance();
+                              return  getAttendance();
                                 // res.send(body)
 							}
 						});
@@ -146,8 +148,9 @@ function getAttendance(){
 					}
                 });
                 console.log(lect_and_tut)
+                return lect_and_tut
 				//if(mainScreen){
-                    
+
 					//mainScreen.webContents.send('attendanceSummary', {subjects:subjects, lect_and_tut:lect_and_tut, lect:lect, tut:tut, prac:prac});
 				//}
 				// attdb.remove({}, {multi:true});
@@ -160,8 +163,8 @@ function getAttendance(){
 }
 
 
-login(data);
+// login(data);
 
-// app.listen(3000,()=>{
-//     console.log('server running at 3000')
-// })
+app.listen(3000,()=>{
+    console.log('server running at 3000')
+})
