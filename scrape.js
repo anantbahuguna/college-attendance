@@ -1,9 +1,12 @@
 const request = require("request");
 const cheerio = require("cheerio");
 const express = require('express')
-const keys = require('./config/keys')
+const data = require('./config/keys')
 const app = express()
-
+var lect = [];
+var tut = [];
+var prac = [];
+var lect_and_tut = [];
 
 // request("https://www.kickassanime.ru/", (error, response, html) => {
 //   if (!error & (response.statusCode == 200)) {
@@ -19,14 +22,18 @@ const app = express()
 //     'dob': '15-03-1998',
 //     'password': ''
 // }
-var data = keys.data
+// var data = keys.data
 var headers = {
 	'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.110 Safari/537.36',
 	'Content-Type' : 'application/x-www-form-urlencoded'
 }
 
+login(data)
 app.get('/',(req,res)=>{
-    res.send(login(data))
+    // login(data)
+		console.log('hello', lect_and_tut);
+		res.render("s.ejs",{attend:lect_and_tut});
+
 })
 function login(data){
     console.log('hello')
@@ -46,7 +53,7 @@ function login(data){
 				}
 				else{
                     // res.send(body)
-                    console.log(body)
+                    // console.log(body)
 					//Invalid password case here
 					if(body.includes('Invalid Password')){
 						// loginStatus = httpResponse.rawHeaders[5].split('=')[1];
@@ -72,7 +79,7 @@ function login(data){
 							}
 							else{
                                 console.log('logged in')
-                              return  getAttendance();
+                              getAttendance();
                                 // res.send(body)
 							}
 						});
@@ -108,7 +115,7 @@ function getAttendance(){
 			}*/
 		}
 		else{
-			console.log(body);
+			// console.log(body);
 			if(body.includes('Session Timeout')){
 				createWindow();
 				getAttendance();
@@ -116,10 +123,8 @@ function getAttendance(){
 			else{
 				var $ = cheerio.load(body);
 				var subjects = [];
-				var lect_and_tut = [];
-				var lect = [];
-				var tut = [];
-				var prac = [];
+
+
 				$('#table-1>tbody>tr').each(function(i, item){
 					subjects.push($(this).children('td').eq(1).html());
 					if($(this).children('td').eq(2).children('a')!=undefined){
@@ -147,8 +152,10 @@ function getAttendance(){
 						prac.push('NA');
 					}
                 });
-                console.log(lect_and_tut)
-                return lect_and_tut
+								console.log(subjects)
+                console.log(lect_and_tut[0])
+								console.log(prac)
+
 				//if(mainScreen){
 
 					//mainScreen.webContents.send('attendanceSummary', {subjects:subjects, lect_and_tut:lect_and_tut, lect:lect, tut:tut, prac:prac});
