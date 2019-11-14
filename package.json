@@ -4,14 +4,26 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "client": "cd client && npm run start",
+    "server": "node scrape.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "heroku-postbuild": "npm install --prefix client && npm run build --prefix client"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "cheerio": "^1.0.0-rc.3",
+    "connect-redis": "^4.0.3",
+    "cors": "^2.8.5",
     "ejs": "^2.7.1",
     "express": "^4.17.1",
+    "express-session": "^1.17.0",
+    "redis": "^2.8.0",
     "request": "^2.88.0"
+  },
+  "devDependencies": {
+    "concurrently": "^4.1.2"
   }
 }
