@@ -2,12 +2,13 @@ const request = require("request");
 const cheerio = require("cheerio");
 const express = require("express");
 const bodyParser = require("body-parser");
-const session = require('express-session')
-const redis = require('redis');
-const redisStore = require('connect-redis')(session);
-const client  = redis.createClient();
-var cors = require('cors');
+const session = require("express-session");
+const redis = require("redis");
+const redisStore = require("connect-redis")(session);
+const client = redis.createClient();
+var cors = require("cors");
 var isValidPwd = true;
+var isValidCredentials = true;
 // var data = require('./config/keys')
 const app = express();
 
@@ -17,9 +18,19 @@ var prac = [];
 var subjects = [];
 var lect_and_tut = [];
 
-app.use(session({secret: 'ssshhhhh',
-                  store: new redisStore({ host: 'localhost', port: 6379, client: client,ttl : 260}),saveUninitialized: false,
-                resave: false}))
+app.use(
+  session({
+    secret: "ssshhhhh",
+    store: new redisStore({
+      host: "localhost",
+      port: 6379,
+      client: client,
+      ttl: 260
+    }),
+    saveUninitialized: false,
+    resave: false
+  })
+);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -84,12 +95,12 @@ function login(data) {
             headers: headers
           },
           function(error, httpResponse, body) {
-            console.log(body)
+            console.log(body);
             if (error) {
               console.log(error);
             } else {
               // res.send(body)
-              // console.log(body)
+              console.log(body);
               //Invalid password case here
               if (body.includes("Invalid Password")) {
                 // loginStatus = httpResponse.rawHeaders[5].split('=')[1];
@@ -97,7 +108,7 @@ function login(data) {
                 // loginScreen.webContents.send('failure', 'NA');
                 // return;
                 isValidPwd = false;
-                console.log(body)
+                console.log(body);
                 console.log("invalid pwd");
               }
               if (httpResponse.rawHeaders[5].split("=")[1]) {
@@ -107,7 +118,8 @@ function login(data) {
                 // 	loginScreen.webContents.send('failure', 'NA');
                 // }
                 // return ;
-                console.log("raw");
+                isValidCredentials = false;
+                console.log("invalid credentials");
               } else {
                 request(
                   {
@@ -266,25 +278,22 @@ function getAttendance() {
   );
 }
 
-
 app.use(cors());
 
-
-
-app.get('/',(req,res)=>{
- let sess = req.session;
-  if(sess.enroll) {
-    return res.redirect('http://localhost:3000/home')
+app.get("/", (req, res) => {
+  let sess = req.session;
+  if (sess.enroll) {
+    return res.redirect("http://localhost:3000/home");
   }
 
-  res.redirect('http://localhost:3000/')
-})
+  res.redirect("http://localhost:3000/");
+});
 
 // login(data)
 app.post("/login", (req, res) => {
   let sess = req.session;
   sess.enroll = req.body.enroll;
-   var data = req.body;
+  var data = req.body;
   // sess.data = req.body
   data.dob = data.dob
     .split("-")
@@ -295,50 +304,48 @@ app.post("/login", (req, res) => {
   console.log("hello", lect_and_tut);
   // res.render("s.ejs",{attend:lect_and_tut,sub:subjects});
   console.log("hello", lect_and_tut);
-  console.log('prac',prac)
-  setTimeout(()=>{
-    console.log(isValidPwd)
-    if(isValidPwd) {
-        res.redirect("http://localhost:3000/home");
+  console.log("prac", prac);
+  setTimeout(() => {
+    console.log(isValidPwd, isValidCredentials);
+    if (isValidPwd && isValidCredentials) {
+      res.send(true);
+    } else {
+      res.send(false);
     }
-    else {
-      res.redirect("http://localhost:3000")
-    }
-  },3000)
-
-
+  }, 5000);
 });
 
 app.get("/showAttendance", (req, res) => {
-  console.log('sending this to react',subjects);
+  console.log("sending this to react", subjects);
   var attend = [];
-  for(let i = 0;i<subjects.length;i++) {
-    attend[i] = lect_and_tut[i] || prac[i]
+  for (let i = 0; i < subjects.length; i++) {
+    attend[i] = lect_and_tut[i] || prac[i];
   }
-  var data = subjects.concat(attend)
-  console.log(attend)
+  var data = subjects.concat(attend);
+  console.log(attend);
   res.send(data);
 });
 
-app.get('/logout',(req,res)=>{
-  req.session.destroy(err =>{
-    if(err) {
+app.get("/logout", (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
       return console.log(err);
     }
-    res.redirect('/')
-  })
-})
+    res.redirect("/");
+  });
+});
 
 // login(data);
 
-if(process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname,'client/build')))
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "client/build")));
 
-  app.get('*',(req,res)=>{
-    res.sendFile(path.resolve(__dirname,"client","build","index.html"))
-  })
+  const path = require("path");
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+  });
 }
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log("server running at 5000");
 });

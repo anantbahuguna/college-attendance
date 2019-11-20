@@ -1,14 +1,19 @@
 import React, { Component } from "react";
-import Navbar from "../components/Navbar";
-import Attendance from './Attendance'
 import { Link } from "react-router-dom";
 import "bulma/css/bulma.css";
+import Modal from "../components/Modal";
 class Home extends Component {
+  state={
+    showModal: true
+  }
+  componentDidMount() {
+  
+  }
   render() {
     return (
       <div>
 
-        // <Attendance />
+        HOME
 
       </div>
     );
