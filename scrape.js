@@ -3,9 +3,9 @@ const cheerio = require("cheerio");
 const express = require("express");
 const bodyParser = require("body-parser");
 const session = require("express-session");
-const redis = require("redis");
-const redisStore = require("connect-redis")(session);
-const client = redis.createClient();
+// const redis = require("redis");
+// const redisStore = require("connect-redis")(session);
+// const client = redis.createClient();
 var cors = require("cors");
 var isValidPwd = true;
 var isValidCredentials = true;
@@ -18,19 +18,19 @@ var prac = [];
 var subjects = [];
 var lect_and_tut = [];
 
-app.use(
-  session({
-    secret: "ssshhhhh",
-    store: new redisStore({
-      host: "localhost",
-      port: 6379,
-      client: client,
-      ttl: 260
-    }),
-    saveUninitialized: false,
-    resave: false
-  })
-);
+// app.use(
+//   session({
+//     secret: "ssshhhhh",
+//     store: new redisStore({
+//       host: "localhost",
+//       port: 6379,
+//       client: client,
+//       ttl: 260
+//     }),
+//     saveUninitialized: false,
+//     resave: false
+//   })
+// );
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -280,19 +280,19 @@ function getAttendance() {
 
 app.use(cors());
 
-app.get("/", (req, res) => {
-  let sess = req.session;
-  if (sess.enroll) {
-    return res.redirect("http://localhost:3000/home");
-  }
+// app.get("/", (req, res) => {
+//   let sess = req.session;
+//   if (sess.enroll) {
+//     return res.redirect("http://localhost:3000/home");
+//   }
 
-  res.redirect("http://localhost:3000/");
-});
+//   res.redirect("http://localhost:3000/");
+// });
 
 // login(data)
 app.post("/login", (req, res) => {
-  let sess = req.session;
-  sess.enroll = req.body.enroll;
+  // let sess = req.session;
+  // sess.enroll = req.body.enroll;
   var data = req.body;
   // sess.data = req.body
   data.dob = data.dob
